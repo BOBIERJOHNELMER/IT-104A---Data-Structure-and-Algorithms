@@ -1,4 +1,4 @@
-﻿#include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -18,40 +18,37 @@ void buildHeap(vector<int>& heap);
 // Function to create text for displaying in the window
 sf::Text createText(const string& content, const sf::Font& font, float x, float y, unsigned int size) {
     sf::Text text;
-    text.setFont(font); // Set the font for the text
-    text.setString(content); // Set the text string
-    text.setCharacterSize(size); // Set the font size
-    text.setFillColor(sf::Color::Green); // Set the text color to green
-    text.setPosition(x, y); // Set the position of the text in the window
+    text.setFont(font);
+    text.setString(content);
+    text.setCharacterSize(size);
+    text.setFillColor(sf::Color::Green);
+    text.setPosition(x, y);
     return text;
 }
 
 // Function to load and scale a background image
 sf::Sprite loadBackground(const string& filePath, sf::Texture& texture, float scaleX, float scaleY) {
     if (!texture.loadFromFile(filePath)) {
-        cout << "Error: Could not load " << filePath << endl; // Error loading background image
+        cout << "Error: Could not load " << filePath << endl;
     }
     sf::Sprite sprite;
-    sprite.setTexture(texture); // Set the texture for the sprite (background)
-    sprite.setScale(scaleX, scaleY); // Scale the sprite to fit the window size
+    sprite.setTexture(texture);
+    sprite.setScale(scaleX, scaleY);
     return sprite;
 }
 
 // Function to maintain heap property by "heapifying" from a node downwards
 void heapify(vector<int>& heap, int n, int i) {
-    int largest = i; // Assume the largest element is the current node
-    int left = 2 * i + 1; // Left child index
-    int right = 2 * i + 2; // Right child index
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
 
-    // If the left child is larger than the root
     if (left < n && heap[left] > heap[largest])
         largest = left;
 
-    // If the right child is larger than the largest so far
     if (right < n && heap[right] > heap[largest])
         largest = right;
 
-    // If the largest is not the root, swap and recursively heapify
     if (largest != i) {
         swap(heap[i], heap[largest]);
         heapify(heap, n, largest);
@@ -61,7 +58,6 @@ void heapify(vector<int>& heap, int n, int i) {
 // Function to build a max-heap from the array
 void buildHeap(vector<int>& heap) {
     int n = heap.size();
-    // Start from the last non-leaf node and heapify each node
     for (int i = n / 2 - 1; i >= 0; --i) {
         heapify(heap, n, i);
     }
@@ -71,7 +67,8 @@ void buildHeap(vector<int>& heap) {
 void displayIntroScreen(const sf::Font& font, const sf::Sprite& background) {
     sf::RenderWindow introWindow(sf::VideoMode(785, 600), "Galactic Cargo Management - Intro");
 
-    unsigned int textSize = 10; // Initial text size
+    // Initial text size
+    unsigned int textSize = 10;
 
     // Backstory and task text
     string content =
@@ -87,7 +84,7 @@ void displayIntroScreen(const sf::Font& font, const sf::Sprite& background) {
         "Use UP and DOWN arrow keys to adjust text size.\n\n"
         "\n\n\n\n\n\n\n\nPress SPACE to begin...";
 
-    sf::Text introText = createText(content, font, 30, 30, textSize); // Create the intro text
+    sf::Text introText = createText(content, font, 30, 30, textSize);
 
     while (introWindow.isOpen()) {
         sf::Event event;
@@ -96,7 +93,7 @@ void displayIntroScreen(const sf::Font& font, const sf::Sprite& background) {
                 introWindow.close();
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Space) {
-                    introWindow.close(); // Close intro screen when SPACE is pressed
+                    introWindow.close(); // Close intro screen
                 }
                 if (event.key.code == sf::Keyboard::Up) {
                     textSize = min(textSize + 2, 40U); // Increase text size, cap at 40
@@ -104,13 +101,13 @@ void displayIntroScreen(const sf::Font& font, const sf::Sprite& background) {
                 if (event.key.code == sf::Keyboard::Down) {
                     textSize = max(textSize - 2, 12U); // Decrease text size, floor at 12
                 }
-                introText.setCharacterSize(textSize); // Update text size dynamically
+                introText.setCharacterSize(textSize); // Update text size
             }
         }
 
         introWindow.clear();
-        introWindow.draw(background); // Draw the background image
-        introWindow.draw(introText); // Draw the intro text
+        introWindow.draw(background);
+        introWindow.draw(introText);
         introWindow.display();
     }
 }
@@ -118,7 +115,7 @@ void displayIntroScreen(const sf::Font& font, const sf::Sprite& background) {
 // Function to insert a new shipment
 void insertShipment(vector<int>& heap, vector<int>& availableShipments, const sf::Font& font, const sf::Sprite& background) {
     sf::RenderWindow window(sf::VideoMode(785, 600), "Insert Shipment");
-    sf::String userInput; // User input for shipment value
+    sf::String userInput;
     sf::Text instructions = createText("\nEnter shipment value to insert: ", font, 50, 50);
     sf::Text availableText = createText("\nAvailable Shipments: ", font, 50, 100);
     sf::Text inputText = createText("", font, 50, 200);
@@ -131,40 +128,40 @@ void insertShipment(vector<int>& heap, vector<int>& availableShipments, const sf
 
             if (event.type == sf::Event::TextEntered) {
                 if (event.text.unicode == '\b' && !userInput.isEmpty())
-                    userInput.erase(userInput.getSize() - 1); // Handle backspace
-                else if (event.text.unicode == '\r') { // Handle Enter key
+                    userInput.erase(userInput.getSize() - 1);
+                else if (event.text.unicode == '\r') {
                     string input = userInput.toAnsiString();
                     try {
-                        int value = stoi(input); // Convert input to integer
+                        int value = stoi(input);
                         auto it = find(availableShipments.begin(), availableShipments.end(), value);
-                        if (it != availableShipments.end()) { // If value exists in available shipments
-                            heap.push_back(value); // Insert value into the heap
-                            buildHeap(heap); // Rebuild heap to maintain the heap property
-                            availableShipments.erase(it); // Remove the value from available shipments
+                        if (it != availableShipments.end()) {
+                            heap.push_back(value);
+                            buildHeap(heap);
+                            availableShipments.erase(it);
                         }
                     }
                     catch (...) {
-                        cout << "Invalid input. Please try again." << endl; // Handle invalid input
+                        cout << "Invalid input. Please try again." << endl;
                     }
                     userInput.clear();
                 }
                 else if (event.text.unicode < 128) {
-                    userInput += event.text.unicode; // Append typed character to userInput
+                    userInput += event.text.unicode;
                 }
             }
         }
 
         stringstream ss;
         ss << "\n\n\n\nAvailable Shipments: ";
-        for (int val : availableShipments) ss << val << " "; // Display available shipments
+        for (int val : availableShipments) ss << val << " ";
         availableText.setString(ss.str());
-        inputText.setString("\n\n\n\nInput: " + userInput.toAnsiString()); // Display current input
+        inputText.setString("\n\n\n\nInput: " + userInput.toAnsiString());
 
         window.clear();
-        window.draw(background); // Draw the background
-        window.draw(instructions); // Draw instructions
-        window.draw(availableText); // Draw available shipments
-        window.draw(inputText); // Draw user input
+        window.draw(background);
+        window.draw(instructions);
+        window.draw(availableText);
+        window.draw(inputText);
         window.display();
     }
 }
@@ -175,14 +172,14 @@ void dispatchShipment(vector<int>& heap, const sf::Font& font, const sf::Sprite&
 
     string message;
     if (!heap.empty()) {
-        int top = heap.front(); // Get the highest-priority shipment (root of the heap)
-        heap[0] = heap.back(); // Replace root with the last element
-        heap.pop_back(); // Remove the last element
-        buildHeap(heap); // Rebuild the heap to restore heap property
+        int top = heap.front();
+        heap[0] = heap.back();
+        heap.pop_back();
+        buildHeap(heap);
         message = "Dispatched shipment with priority:\n                             " + to_string(top);
     }
     else {
-        message = "No shipments to dispatch!"; // If the heap is empty, show a message
+        message = "No shipments to dispatch!";
     }
 
     sf::Text messageText = createText(message, font, 50, 250);
@@ -195,8 +192,8 @@ void dispatchShipment(vector<int>& heap, const sf::Font& font, const sf::Sprite&
         }
 
         window.clear();
-        window.draw(background); // Draw the background
-        window.draw(messageText); // Display the dispatch message
+        window.draw(background);
+        window.draw(messageText);
         window.display();
     }
 }
@@ -207,7 +204,7 @@ void viewHeap(const vector<int>& heap, const sf::Font& font, const sf::Sprite& b
 
     stringstream ss;
     ss << "\n\nCurrent Heap: ";
-    for (int val : heap) ss << val << " "; // Display all heap elements
+    for (int val : heap) ss << val << " ";
 
     sf::Text heapText = createText(ss.str(), font, 50, 200);
 
@@ -219,25 +216,23 @@ void viewHeap(const vector<int>& heap, const sf::Font& font, const sf::Sprite& b
         }
 
         window.clear();
-        window.draw(background); // Draw the background
-        window.draw(heapText); // Draw the heap contents
+        window.draw(background);
+        window.draw(heapText);
         window.display();
     }
 }
 
-// Main function to drive the cargo management program
 int main() {
-    vector<int> heap; // Max-heap to store shipment priorities
-    vector<int> availableShipments = { 12, 35, 9, 18, 23 }; // List of available shipments
+    vector<int> heap;
+    vector<int> availableShipments = { 12, 35, 9, 18, 23 };
 
     sf::RenderWindow window(sf::VideoMode(785, 600), "Cargo Management");
     sf::Font font;
-    if (!font.loadFromFile("SPACEBOY.ttf")) { // Load font for text
+    if (!font.loadFromFile("SPACEBOY.ttf")) {
         cout << "Error loading font!" << endl;
         return -1;
     }
 
-    // Load background images for various screens
     sf::Texture introTexture, menuTexture, insertTexture, dispatchTexture, viewTexture;
     sf::Sprite introBackground = loadBackground("intro.jpg", introTexture, 0.5f, 0.6f);
     sf::Sprite menuBackground = loadBackground("startup.jpg", menuTexture, 0.5f, 0.6f); // Adjust the scale to fit your window size
@@ -263,22 +258,22 @@ int main() {
 
             if (event.type == sf::Event::TextEntered) {
                 if (event.text.unicode == '\b' && !userInput.isEmpty())
-                    userInput.erase(userInput.getSize() - 1); // Handle backspace
-                else if (event.text.unicode == '\r') { // Handle Enter key
+                    userInput.erase(userInput.getSize() - 1);
+                else if (event.text.unicode == '\r') {
                     string input = userInput.toAnsiString();
                     if (input == "1") {
-                        insertShipment(heap, availableShipments, font, insertBackground); // Call insertShipment function
+                        insertShipment(heap, availableShipments, font, insertBackground);
                     }
                     else if (input == "2") {
-                        dispatchShipment(heap, font, dispatchBackground); // Call dispatchShipment function
+                        dispatchShipment(heap, font, dispatchBackground);
                     }
                     else if (input == "3") {
-                        viewHeap(heap, font, viewBackground); // Call viewHeap function
+                        viewHeap(heap, font, viewBackground);
                     }
                     userInput.clear();
                 }
                 else if (event.text.unicode < 128) {
-                    userInput += event.text.unicode; // Append typed character to userInput
+                    userInput += event.text.unicode;
                 }
             }
         }
@@ -287,8 +282,8 @@ int main() {
 
         window.clear();
         window.draw(menuBackground); // Use the menu background here
-        window.draw(menuText); // Display menu options
-        window.draw(inputText); // Display user input
+        window.draw(menuText);
+        window.draw(inputText);
         window.display();
     }
 
