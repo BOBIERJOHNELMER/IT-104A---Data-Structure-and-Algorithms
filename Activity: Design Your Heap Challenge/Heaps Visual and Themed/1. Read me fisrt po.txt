@@ -1,3 +1,4 @@
+iNFORMATION ABOUT AND NEEDED TO RUN Galactic Cargo Management
 
 1. The Full Game Code is Named "Main game2.cpp".
 2. We used VS 2022 Compiler coding "Galactic Cargo Management" on this activity, it is essential that all the file is located in all-in one folders. 
