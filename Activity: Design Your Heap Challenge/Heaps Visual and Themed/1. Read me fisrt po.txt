@@ -1,0 +1,13 @@
+1. The Game or the Code File Name is "Main game2.sln" this file is connected to the sflm. 
+2. The Game Raw Code is Named "Main game2.cpp".
+3. We used VS 2022 Compiler coding "Galactic Cargo Management" on this activity, it is essential that all the file is located in all-in one folders. 
+
+
+How to setup SFML in Visual Studio in 5 minutes. Fully Explained.
+https://www.youtube.com/watch?v=lFzpkvrscs4&t=218s&ab_channel=EOD-Ethan
+
+
+Video of the Activity: Design Your Heap Challenge
+
+https://drive.google.com/file/d/1uk5h9e7luIkjRwGf0z5XRkqfGBX4ekT9/view?usp=drive_link
+
