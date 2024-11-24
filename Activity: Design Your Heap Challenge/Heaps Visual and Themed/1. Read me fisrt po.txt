@@ -1,6 +1,6 @@
-1. The Game File That is connected to the sfml is Named "Main game2.sln".
-2. The Full Game Code is Named "Main game2.cpp".
-3. We used VS 2022 Compiler coding "Galactic Cargo Management" on this activity, it is essential that all the file is located in all-in one folders. 
+
+1. The Full Game Code is Named "Main game2.cpp".
+2. We used VS 2022 Compiler coding "Galactic Cargo Management" on this activity, it is essential that all the file is located in all-in one folders. 
 
 How to setup SFML in Visual Studio in 5 minutes. Fully Explained.
 https://www.youtube.com/watch?v=lFzpkvrscs4&t=218s&ab_channel=EOD-Ethan
