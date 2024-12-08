@@ -1,0 +1,103 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Sprite Animation Example");
+    window.setFramerateLimit(60);
+
+    // Load the sprite sheet texture
+    sf::Texture astroTexture;
+    if (!astroTexture.loadFromFile("bot.png")) {
+        std::cerr << "Error: Could not load bot.png!" << std::endl;
+        return -1;
+    }
+
+    // Create the sprite and associate it with the texture
+    sf::Sprite astroSprite;
+    astroSprite.setTexture(astroTexture);
+
+    // Define the size of each frame in the sprite sheet
+    const int frameWidth = 64; // Updated frame width
+    const int frameHeight = 68; // Updated frame height
+
+    // Initial frame in the sprite sheet
+    sf::IntRect currentFrame(0, 0, frameWidth, frameHeight);
+    astroSprite.setTextureRect(currentFrame);
+
+    // Position of the sprite in the window
+    sf::Vector2f position(375.f, 275.f);  // Starting position
+    astroSprite.setPosition(position);
+
+    // Movement speed
+    float speed = 8.f;
+
+    // Animation variables
+    bool isMoving = false;
+    int frameIndex = 0;
+    int currentRow = 0;  // Start with the "Down" movement row (assuming down is row 0)
+
+    // Clock to control animation speed
+    sf::Clock animationClock;
+    float animationSpeed = 0.2f; // Adjust for faster/slower animations
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        // Reset movement flags
+        isMoving = false;
+
+        // Handle keyboard input for movement
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && position.y > 0) {
+            position.y -= speed;
+            currentRow = 3; // Row for "Up" movement
+            isMoving = true;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && position.y < 600 - frameHeight) {
+            position.y += speed;
+            currentRow = 0; // Row for "Down" movement
+            isMoving = true;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && position.x > 0) {
+            position.x -= speed;
+            currentRow = 1; // Row for "Left" movement
+            isMoving = true;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && position.x < 800 - frameWidth) {
+            position.x += speed;
+            currentRow = 2; // Row for "Right" movement
+            isMoving = true;
+        }
+
+        // Animate sprite if moving
+        if (isMoving) {
+            if (animationClock.getElapsedTime().asSeconds() >= animationSpeed) {
+                frameIndex = (frameIndex + 1) % 4; // Loop through 4 frames (assuming 4 frames per direction)
+                currentFrame.left = frameIndex * frameWidth; // Select frame by column
+                currentFrame.top = currentRow * frameHeight; // Select row by movement direction
+                astroSprite.setTextureRect(currentFrame);    // Apply the frame
+                animationClock.restart();
+            }
+        }
+        else {
+            // Reset to the idle frame if not moving
+            frameIndex = 0;
+            currentFrame.left = frameIndex * frameWidth;
+            currentFrame.top = currentRow * frameHeight;
+            astroSprite.setTextureRect(currentFrame);
+        }
+
+        // Update the sprite's position in the window
+        astroSprite.setPosition(position);
+
+        // Render
+        window.clear(sf::Color::Black);
+        window.draw(astroSprite);
+        window.display();
+    }
+
+    return 0;
+}

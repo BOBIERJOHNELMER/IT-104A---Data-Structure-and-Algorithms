@@ -1,0 +1,328 @@
+
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <algorithm>
+
+// Function to create SFML Text objects with consistent styling.
+sf::Text createText(const std::string& content, const sf::Font& font, float x, float y, unsigned int size = 24) {
+    sf::Text text;
+    text.setFont(font);
+    text.setString(content);
+    text.setCharacterSize(size);
+    text.setFillColor(sf::Color::White);
+    text.setPosition(x, y);
+    return text;
+}
+
+// Displays the startup window with a welcome message and backstory.
+void displayStartupWindow() {
+    sf::RenderWindow startupWindow(sf::VideoMode(1024, 720), "Welcome to Heap Management!");
+
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        std::cerr << "Error loading font!" << std::endl;
+        return;
+    }
+
+    // Create a title and instructions for the startup window
+    sf::Text title = createText("Heap Management Game", font, 10, 10, 34);
+    sf::Text instructions = createText(
+        "\n\n\n\nBackstory:\n\nIn the far future, humans have built colonies on planets across the galaxy.\n\n"
+        "These colonies depend on shipments of important supplies like food, medicine,\n\n"
+        "and tools. You are the cargo manager on the SS Nexus. Your job is to prioritize\n\n"
+        "and deliver shipments efficiently to keep the colonies thriving.\n\n\n\n"
+        "Mission:\n\n"
+        "1. Insert Shipments: Add new shipments without disrupting priority.\n\n"
+        "2. Dispatch Shipments: Deliver the most urgent shipments.\n\n"
+        "3. Maintain Order: Use the Heapify process to keep the system organized.\n\n"
+        "4. Monitor Changes: Track how actions impact priorities.\n\n"
+        "\n\n\n\n\n\n\n\nPress any key to start...",
+        font, 50, 10, 20
+    );
+
+    sf::Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("startup_background.jpg")) {
+        std::cerr << "Error: Could not load startup_background.jpg!" << std::endl;
+    }
+    sf::Sprite backgroundSprite(backgroundTexture);
+
+    while (startupWindow.isOpen()) {
+        sf::Event event;
+        while (startupWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                startupWindow.close();
+
+            if (event.type == sf::Event::KeyPressed) {
+                startupWindow.close();  // Close the startup window when a key is pressed
+            }
+        }
+
+        startupWindow.clear();
+        if (backgroundTexture.getSize().x > 0) {
+            startupWindow.draw(backgroundSprite);
+        }
+        startupWindow.draw(title);
+        startupWindow.draw(instructions);
+        startupWindow.display();
+    }
+}
+
+// Provides game instructions to the player.
+void instructions() {
+    sf::RenderWindow startupWindow(sf::VideoMode(1024, 720), "Welcome to Heap Management!");
+
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        std::cerr << "Error loading font!" << std::endl;
+        return;
+    }
+
+    // Display controls and game mechanics
+    sf::Text title = createText("Heap Management Game", font, 10, 10, 34);
+    sf::Text instructions = createText(
+        "Use arrow keys to navigate the bot.\n"
+        "Door: Insert shipments into the heap.\n"
+        "Ship: Dispatch shipments.\n"
+        "Box: View the heap contents.\n\n"
+        "Go near to perform the task\n\n\n\n"
+        "Press any key to start...",
+        font, 100, 200, 24
+    );
+
+    sf::Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("startup_background.jpg")) {
+        std::cerr << "Error: Could not load startup_background.jpg!" << std::endl;
+    }
+    sf::Sprite backgroundSprite(backgroundTexture);
+
+    while (startupWindow.isOpen()) {
+        sf::Event event;
+        while (startupWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                startupWindow.close();
+
+            if (event.type == sf::Event::KeyPressed) {
+                startupWindow.close();  // Close the instructions window when a key is pressed
+            }
+        }
+
+        startupWindow.clear();
+        if (backgroundTexture.getSize().x > 0) {
+            startupWindow.draw(backgroundSprite);
+        }
+        startupWindow.draw(title);
+        startupWindow.draw(instructions);
+        startupWindow.display();
+    }
+}
+
+// Builds a min-heap from the given array.
+void buildHeapMin(std::vector<int>& heap) {
+    int n = heap.size();
+    for (int i = n / 2 - 1; i >= 0; --i) {
+        int smallest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+
+        if (left < n && heap[left] < heap[smallest])
+            smallest = left;
+        if (right < n && heap[right] < heap[smallest])
+            smallest = right;
+
+        if (smallest != i) {
+            std::swap(heap[i], heap[smallest]);
+            buildHeapMin(heap);  // Recursively heapify the affected subtree
+        }
+    }
+}
+
+// Builds a max-heap from the given array.
+void buildHeapMax(std::vector<int>& heap) {
+    int n = heap.size();
+    for (int i = n / 2 - 1; i >= 0; --i) {
+        int largest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+
+        if (left < n && heap[left] > heap[largest])
+            largest = left;
+        if (right < n && heap[right] > heap[largest])
+            largest = right;
+
+        if (largest != i) {
+            std::swap(heap[i], heap[largest]);
+            buildHeapMax(heap); // Recursively heapify the affected subtree
+        }
+    }
+}
+
+// Inserts a value into the min-heap.
+void insertMinHeap(std::vector<int>& heap, int value) {
+    heap.push_back(value);
+    int index = heap.size() - 1;
+
+    while (index > 0) {
+        int parent = (index - 1) / 2;
+        if (heap[parent] <= heap[index])
+            break;
+        std::swap(heap[parent], heap[index]);
+        index = parent;
+    }
+}
+
+// Removes the maximum element from the max-heap and returns its value.
+int removeMaxHeap(std::vector<int>& heap) {
+    if (heap.empty()) return -1;
+
+    int maxValue = heap[0];
+    heap[0] = heap.back();
+    heap.pop_back();
+    buildHeapMax(heap); // Rebuild heap after removal
+    return maxValue;
+}
+
+Here’s a line-by-line explanation of the given code. I'll provide clear comments for each part to explain what it does:
+
+---
+
+### **Includes**
+```cpp
+#include <SFML/Graphics.hpp>  // Includes the SFML graphics module for rendering.
+#include <SFML/Audio.hpp>     // Includes the SFML audio module for handling sound/music.
+#include <iostream>           // Provides input/output stream utilities.
+#include <vector>             // Provides the `std::vector` container.
+#include <sstream>            // Provides string stream utilities for handling text.
+#include <algorithm>          // Provides algorithms like sort, find, etc.
+```
+
+---
+
+### **Helper Function: `createText`**
+```cpp
+// Utility function to create an `sf::Text` object with specified properties.
+sf::Text createText(const std::string& content, const sf::Font& font, float x, float y, unsigned int size = 24) {
+    sf::Text text;
+    text.setFont(font);                      // Set the font for the text.
+    text.setString(content);                // Set the string content of the text.
+    text.setCharacterSize(size);            // Set the font size of the text.
+    text.setFillColor(sf::Color::White);    // Set the color of the text (white).
+    text.setPosition(x, y);                 // Set the text position (x, y).
+    return text;                            // Return the configured `sf::Text` object.
+}
+```
+
+---
+
+### **Function: `displayStartupWindow`**
+```cpp
+// Displays the startup window with a welcome screen and instructions.
+void displayStartupWindow() {
+    sf::RenderWindow startupWindow(sf::VideoMode(1024, 720), "Welcome to Heap Management!"); // Create a window of size 1024x720.
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {  // Load the font file.
+        std::cerr << "Error loading font!" << std::endl; // Error handling if font fails to load.
+        return;
+    }
+
+    // Create title text and instructions using `createText` helper function.
+    sf::Text title = createText("Heap Management Game", font, 10, 10, 34);
+    sf::Text instructions = createText(
+        "\n\n\n\nBackstory:\n\nIn the far future, humans have built colonies on planets across the galaxy.\n\n"
+        "These colonies depend on shipments of important supplies like food, medicine,\n\n"
+        "and tools. You are the cargo manager on the SS Nexus. Your job is to prioritize\n\n"
+        "and deliver shipments efficiently to keep the colonies thriving.\n\n\n\n"
+        "Mission:\n\n"
+        "1. Insert Shipments: Add new shipments without disrupting priority.\n\n"
+        "2. Dispatch Shipments: Deliver the most urgent shipments.\n\n"
+        "3. Maintain Order: Use the Heapify process to keep the system organized.\n\n"
+        "4. Monitor Changes: Track how actions impact priorities.\n\n"
+        "\n\n\n\n\n\n\n\nPress any key to start...",
+        font, 50, 10, 20);
+
+    // Load the background texture and create a sprite for rendering.
+    sf::Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("startup_background.jpg")) {
+        std::cerr << "Error: Could not load startup_background.jpg!" << std::endl;
+    }
+    sf::Sprite backgroundSprite(backgroundTexture);
+
+    // Main event loop for the startup window.
+    while (startupWindow.isOpen()) {
+        sf::Event event;
+        while (startupWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) // Close window on 'X' click.
+                startupWindow.close();
+            if (event.type == sf::Event::KeyPressed) // Close on any key press.
+                startupWindow.close();
+        }
+
+        // Clear the screen, draw the background, and render the text.
+        startupWindow.clear();
+        if (backgroundTexture.getSize().x > 0) { // Ensure the background texture is valid.
+            startupWindow.draw(backgroundSprite);
+        }
+        startupWindow.draw(title);           // Draw the title.
+        startupWindow.draw(instructions);    // Draw the instructions.
+        startupWindow.display();             // Display the updated window content.
+    }
+}
+```
+
+---
+
+### **Function: `instructions`**
+This function is very similar to `displayStartupWindow`. It displays a secondary instructions screen.
+
+---
+
+### **Heap Management Helper Functions**
+```cpp
+// Builds a min-heap from the given vector.
+void buildHeapMin(std::vector<int>& heap) {
+    int n = heap.size();                   // Get the size of the heap.
+    for (int i = n / 2 - 1; i >= 0; --i) { // Start from the last non-leaf node.
+        int smallest = i;                  // Assume the current node is the smallest.
+        int left = 2 * i + 1;              // Left child index.
+        int right = 2 * i + 2;             // Right child index.
+
+        // Compare the left and right children with the current node.
+        if (left < n && heap[left] < heap[smallest])
+            smallest = left;
+        if (right < n && heap[right] < heap[smallest])
+            smallest = right;
+
+        // If the smallest node is not the current node, swap and recursively heapify.
+        if (smallest != i) {
+            std::swap(heap[i], heap[smallest]);
+            buildHeapMin(heap);
+        }
+    }
+}
+```
+
+The rest of the heap functions (`buildHeapMax`, `insertMinHeap`, `removeMaxHeap`) follow similar logic, adjusted for either min-heap or max-heap operations.
+
+---
+
+### **UI and Interactivity Functions**
+Functions like `insertShipment`, `dispatchShipment`, and `viewHeap` handle interactions with the heap through UI windows.
+
+- **`insertShipment`**: Opens a window for the user to input a value to insert into the heap.
+- **`dispatchShipment`**: Removes and displays the maximum value from the heap.
+- **`viewHeap`**: Displays the sorted contents of the heap.
+
+---
+
+### **Main Function**
+The `main` function ties everything together:
+1. Displays the startup screen (`displayStartupWindow`) and instructions.
+2. Sets up the main game window, assets, and music.
+3. Implements movement controls for the bot and collision detection with task zones (insert, dispatch, view).
+4. Uses a cooldown mechanism to prevent multiple rapid actions.
+
+---
+
+This overview explains key sections. If you'd like me to explain specific blocks of code in detail, let me know!
