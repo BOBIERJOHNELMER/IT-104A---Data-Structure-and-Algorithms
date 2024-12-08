@@ -6,6 +6,11 @@ HERE IS THE EXPECTED OUTCOME FOR OUR SYSTEM OR GAME  Galactic Cargo Management:
 
 https://drive.google.com/file/d/1CiDeHKEztsb61uLmKp_hshmDO9fO-lGu/view?usp=drive_link
 
+OTHER PATH LINK TO THE GAME (GOOGLEDRIVE) IF GETHUB DOES NOT WORK. 
+(NO NEED TO SET UP SFML) (DOWNLOAD  AND RUN).
+
+https://drive.google.com/file/d/1tjUBfw6H1RP7sMJLHQIR6xgTDzN1Ar2A/view?usp=sharing
+
 MEMBERS:
 Charls Barquin 
 Vincent Macauyam
